@@ -1,1 +1,0 @@
-# bogcha_bot

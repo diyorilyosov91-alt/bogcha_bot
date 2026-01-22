@@ -1,7 +1,5 @@
 import os
 import logging
-import json
-from datetime import datetime
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 
@@ -10,7 +8,6 @@ BOT_TOKEN = "8087301459:AAHBvRA-erwAndeNIop8QvJEwSU235NLH2U"
 
 # ========== LOGGING ==========
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # ========== ASOSIY TUGMALAR ==========
 def get_main_keyboard():
@@ -30,56 +27,19 @@ async def start(update: Update, context: CallbackContext):
 
 # ========== BOG'CHA HAQIDA ==========
 async def bogcha_info(update: Update, context: CallbackContext):
-    info_text = """🏫 QUVNOQ BOLAJON BOG'CHASI
-
-📊 Umumiy ma'lumot:
-• Yosh: 3-7 yosh
-• Guruhlar: 5 ta
-• Tarbiyachilar: 15 ta
-• Ish vaqti: 7:00 - 19:00
-
-🎓 Qo'shimcha darslar:
-• Rassomchilik
-• Raqs
-• Ingliz tili
-• Shaxmat"""
-    await update.message.reply_text(info_text)
+    await update.message.reply_text("🏫 Bog'cha haqida ma'lumot")
 
 # ========== TAOMNOMA ==========
 async def taomnoma(update: Update, context: CallbackContext):
-    menu_text = """🍽 HAFTA TAOMNOMASI
-
-DUSHANBA:
-🍳 Nonushta: Sariyog'li choy, tuxum, non
-🍲 Tushlik: Mastava, salat, non
-🥗 Kechki: Meva, kefir
-
-SESHANBA:
-🍳 Nonushta: Sut, pirog, meva
-🍲 Tushlik: Sho'rva, kartoshka, salat
-🥗 Kechki: Yogurt, pechenye"""
-    await update.message.reply_text(menu_text)
+    await update.message.reply_text("🍽 Taomnoma")
 
 # ========== E'LONLAR ==========
 async def elonlar(update: Update, context: CallbackContext):
-    elon_text = """📢 YANGI E'LONLAR
-
-1. YANGI YIL BAYRAMI 🎄
-📅 Sana: 25-dekabr
-🕐 Vaqt: 10:00
-
-2. OTA-ONA MAJLISI
-📅 Sana: 28-dekabr
-🕐 Vaqt: 16:00"""
-    await update.message.reply_text(elon_text)
+    await update.message.reply_text("📢 E'lonlar")
 
 # ========== FARZAND KELMAYDI ==========
 async def farzand_kelmaydi(update: Update, context: CallbackContext):
-    keyboard = [
-        [InlineKeyboardButton("Kasallik", callback_data='sick')],
-        [InlineKeyboardButton("Tashrif", callback_data='trip')],
-        [InlineKeyboardButton("Boshqa", callback_data='other')]
-    ]
+    keyboard = [[InlineKeyboardButton("Kasallik", callback_data='sick')]]
     await update.message.reply_text(
         "Farzandingiz kelmaslik sababi?",
         reply_markup=InlineKeyboardMarkup(keyboard)
@@ -87,33 +47,17 @@ async def farzand_kelmaydi(update: Update, context: CallbackContext):
 
 # ========== ALOQA ==========
 async def aloqa(update: Update, context: CallbackContext):
-    await update.message.reply_text("📞 ALOQA:\n\nDirektor: +99890 123-45-67\nTarbiyachi: +99891 234-56-78")
+    await update.message.reply_text("📞 Aloqa")
 
 # ========== MANZIL ==========
 async def manzil(update: Update, context: CallbackContext):
-    await update.message.reply_text("📍 Manzil:\nToshkent shahri, Yunusobod tumani")
+    await update.message.reply_text("📍 Manzil")
 
 # ========== TUGMA BOSILGANDA ==========
 async def button_callback(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
-    
-    sabablar = {
-        'sick': "Kasallik",
-        'trip': "Tashrif", 
-        'other': "Boshqa sabab"
-    }
-    
-    sabab = sabablar.get(query.data, "Noma'lum")
-    user = query.from_user
-    
-    # Foydalanuvchiga xabar
-    await query.edit_message_text(f"✅ Xabaringiz qabul qilindi!\nSabab: {sabab}\nAdministratorlar siz bilan bog'lanadi.")
-    
-    # Logga yozish
-    print(f"📝 Yangi kelmaslik: {user.first_name}, Sabab: {sabab}, Vaqt: {datetime.now()}")
-    
-    # Bu yerda sizga xabar yuborish kodi qo'shiladi (keyinroq)
+    await query.edit_message_text("✅ Xabaringiz qabul qilindi!")
 
 # ========== XABARLARNI QAYTA ISHLASH ==========
 async def handle_message(update: Update, context: CallbackContext):
@@ -136,18 +80,18 @@ async def handle_message(update: Update, context: CallbackContext):
 
 # ========== ASOSIY FUNKSIYA ==========
 def main():
-    # Botni yaratish
-    app = Application.builder().token(BOT_TOKEN).build()
+    # Application yaratish
+    application = Application.builder().token(BOT_TOKEN).build()
     
     # Handlerlar
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_callback))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(button_callback))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Render uchun port (MUHIM!)
+    # Render uchun port
     port = int(os.environ.get("PORT", 8080))
     
-    # Oddiy server ishga tushirish (portni bog'lash uchun)
+    # Server ishga tushirish
     from http.server import HTTPServer, BaseHTTPRequestHandler
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
@@ -162,11 +106,11 @@ def main():
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
     server_thread.start()
-    print(f"🌐 Server {port}-portda ishga tushdi")
+    print(f"✅ Server {port}-portda ishga tushdi")
     
     # Botni ishga tushirish
     print("🤖 Bot ishga tushdi...")
-    app.run_polling()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
